@@ -102,5 +102,13 @@ public class Player {
         }
     }
 
+    // // 方法：passTurnUpdate
+    // public void passTurnUpdate() {
+    //     changeHunger(-5);
+    //     changeThirst(-5);
+    //     changehappiness(-2);
+    //     changeAffection(-1);
+    // }
+
 }
 

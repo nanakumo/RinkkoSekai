@@ -1,6 +1,9 @@
 package com.example.pet;
 
-import java.util.function.IntFunction;
+// import java.util.function.IntFunction;
+import com.example.Item.*;
+
+
 
 // 创建Rinkko类
 
@@ -205,12 +208,12 @@ public void drink(com.example.Item.DrinkItem drink){
 }
 
 // 和凛喵喵玩耍方法
-public viod playWith(PlayActivityItem activity){
+public void playWith(PlayActivityItem activity){
     changeMood(activity.getMoodBoost());
     changeAffection(activity.getAffectionBoost());
-    changeHunger(activity.getHungerBoost());
+    changeHunger(activity.getHungerCost());
 
-    if (debuffs.contains(DebuffType.UNHAPPY)) {
+    if (currentDebuff == DebuffType.UNHAPPY) {
         clearDebuff(DebuffType.UNHAPPY);
     }
 
@@ -221,9 +224,9 @@ public viod playWith(PlayActivityItem activity){
 
 public void takeMedicine(MedicineItem medicine){
     changeHealth(medicine.getHealthBoost());
-    changeMood(medicine.getMoodBoost());
+    changeMood(medicine.getMoodDecrease());
 
-    if (debuffs.contains(DebuffType.SICK)) {
+    if (currentDebuff == DebuffType.SICK) {
         clearDebuff(DebuffType.SICK);
     }
 
