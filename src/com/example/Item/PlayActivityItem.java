@@ -1,4 +1,4 @@
-package com.example.Item;
+package com.example.item;
 
 public class PlayActivityItem implements MenuItem{
     private final String name;

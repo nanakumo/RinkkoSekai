@@ -5,7 +5,7 @@ import java.util.Scanner;
 import java.util.Random;
 import java.util.List;
 import java.util.ArrayList;
-import com.example.Item.*;
+import com.example.item.*;
 
 
 public class Game {
@@ -80,7 +80,7 @@ public class Game {
 
         System.out.println("请选择你要操作的凛喵喵：");
         for (int i = 0; i < pets.size(); i++) {
-            System.out.printf("%d. %s", i + 1, pets.get(i).getName());
+            System.out.printf("%d. %s\n", i + 1, pets.get(i).getName());
         }
         System.out.println("0. 返回");
 
@@ -112,10 +112,14 @@ public class Game {
     }
 
     public boolean checkGameOverCondition() {
+        if (player.getPets().isEmpty()) return false; // 防止没有凛喵喵时误判
         for (Rinkko pet : player.getPets()) {
-            if (pet.getAffection() > 5) return false;
+            if (pet.getAffection() <= Rinkko.MIN_STAT_VALUE) {
+                System.out.println(pet.getName() + "因为好感度降到了冰点，离开了你...");
+                return true;
+            }
         }
-        return true;
+        return false;
     }
 
     public boolean handleFeedAction(Rinkko pet) {

@@ -1,4 +1,4 @@
-package com.example.Item;
+package com.example.item;
 
 public class MedicineItem implements MenuItem {
     private final String name;

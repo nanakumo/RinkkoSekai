@@ -1,4 +1,4 @@
-package com.example.Item;
+package com.example.item;
 
 public interface MenuItem {
 

@@ -1,7 +1,7 @@
 package com.example.pet;
 
 // import java.util.function.IntFunction;
-import com.example.Item.*;
+import com.example.item.*;
 
 
 
@@ -82,19 +82,19 @@ public class Rinkko {
     }
 
     protected void changeThirst(int amount){
-        this.thirst = Math.max(MIN_STAT_VALUE, Math.min(MAX_STAT_VALUE, this.hunger + amount));
+        this.thirst = Math.max(MIN_STAT_VALUE, Math.min(MAX_STAT_VALUE, this.thirst + amount));
     }
 
     protected void changeMood(int amount){
-        this.mood = Math.max(MIN_STAT_VALUE, Math.min(MAX_STAT_VALUE, this.hunger + amount));
+        this.mood = Math.max(MIN_STAT_VALUE, Math.min(MAX_STAT_VALUE, this.mood + amount));
     }
 
     protected void changeHealth(int amount){
-        this.health = Math.max(MIN_STAT_VALUE, Math.min(MAX_STAT_VALUE, this.hunger + amount));
+        this.health = Math.max(MIN_STAT_VALUE, Math.min(MAX_STAT_VALUE, this.health + amount));
     }
 
     protected void changeAffection(int amount){
-        this.affection = Math.max(MIN_STAT_VALUE, Math.min(MAX_STAT_VALUE, this.hunger + amount));
+        this.affection = Math.max(MIN_STAT_VALUE, Math.min(MAX_STAT_VALUE, this.affection + amount));
     }
 
     // 设置名字的方法
@@ -122,43 +122,55 @@ public class Rinkko {
     }
 
     // 每回合状态衰减和Debuff处理
-    public void passTurnUpdate(){
+    public void passTurnUpdate() {
+        System.out.println(name + " 状态发生自然变化。");
+        // 1. 状态自然衰减
         changeHunger(-5);
         changeThirst(-7);
         changeMood(-3);
-        if(health < 50){
-            changeMood(-2);
+        changeHealth(-2); // 修正：这是基础健康衰减
+
+        if (health < 50) {
+            changeMood(-2); // 健康度低额外降低心情
         }
-        changeMood(-2);
         if (hunger < HUNGER_THRESHOLD || thirst < THIRST_THRESHOLD) {
-            changeHealth(-3);
+            changeHealth(-3); // 饥饿或口渴额外降低健康
         }
-        //Debuff处理
-        if (DebuffTurnLeft > 0) {
+
+        // 2. Debuff处理
+        if (currentDebuff != DebuffType.NONE) { // 如果当前有Debuff
             DebuffTurnLeft--;
+            System.out.println(name + " 的 " + currentDebuff.getDescription() + " 状态还剩 " + DebuffTurnLeft + " 回合。");
+
             if (DebuffTurnLeft == 0) {
-                System.out.println("由于"+ name + "的" + currentDebuff.getDescription() + "状态未被照料，好感度下降了！ /(ㄒoㄒ)/~~");
+                System.out.println("由于" + name + "的" + currentDebuff.getDescription() + "状态长时间未被照料，好感度下降了！(-15 好感)");
                 changeAffection(-15);
                 currentDebuff = DebuffType.NONE;
-            } else {
-                // 检查是否会触发新的 Debuff
-                if (health < HEALTH_THRESHOLD_FOR_SICK && currentDebuff == DebuffType.NONE) {
-                    currentDebuff = DebuffType.SICK;
-                    DebuffTurnLeft = DEBUFF_DURATION + 1;
-                    System.out.println(name + "凛喵喵生病了！小猫娘快来照顾我！");
-                } else if (hunger < HUNGER_THRESHOLD && currentDebuff == DebuffType.NONE) {
-                    currentDebuff = DebuffType.HUNGRY;
-                    DebuffTurnLeft = DEBUFF_DURATION;
-                    System.out.println(name +"凛喵喵饿了！小猫娘快来喂饭！");
-                } else if (mood < MOOD_THRESHOLD || currentDebuff == DebuffType.NONE) {
-                    currentDebuff = DebuffType.UNHAPPY;
-                    DebuffTurnLeft = DEBUFF_DURATION;
-                    System.out.println(name + "凛喵喵不开心了！小猫娘快来哄我！");
-                }
-
             }
         }
+
+        // 3. 检查是否触发新的Debuff (与旧的Debuff处理分离)
+        // 按优先级顺序检查
+        if (health < HEALTH_THRESHOLD_FOR_SICK && currentDebuff != DebuffType.SICK) {
+            currentDebuff = DebuffType.SICK;
+            DebuffTurnLeft = DEBUFF_DURATION + 1; // 生病持续更久
+            System.out.println(name + " 进入了 生病 状态！持续 " + DebuffTurnLeft + " 回合。");
+        } else if (hunger < HUNGER_THRESHOLD && currentDebuff != DebuffType.HUNGRY) {
+            currentDebuff = DebuffType.HUNGRY;
+            DebuffTurnLeft = DEBUFF_DURATION;
+            System.out.println(name + " 进入了 饿了 状态！持续 " + DebuffTurnLeft + " 回合。");
+        } else if (thirst < THIRST_THRESHOLD && currentDebuff != DebuffType.THIRSTY) {
+            // 这里之前少了个判断
+            currentDebuff = DebuffType.THIRSTY;
+            DebuffTurnLeft = DEBUFF_DURATION;
+            System.out.println(name + " 进入了 渴了 状态！持续 " + DebuffTurnLeft + " 回合。");
+        } else if (mood < MOOD_THRESHOLD && currentDebuff != DebuffType.UNHAPPY) {
+            currentDebuff = DebuffType.UNHAPPY;
+            DebuffTurnLeft = DEBUFF_DURATION;
+            System.out.println(name + " 进入了 不开心 状态！持续 " + DebuffTurnLeft + " 回合。");
+        }
     }
+
 
     // 主动清除指定 Debuff
 public void clearDebuff(DebuffType typeToClear) {
@@ -170,7 +182,7 @@ public void clearDebuff(DebuffType typeToClear) {
 }
 
 // 吃食物方法
-public void eat(com.example.Item.FoodItem food){
+public void eat(com.example.item.FoodItem food){
     changeHunger(food.getHungerBoost());
     changeMood(food.getMoodBoost());
 
@@ -180,7 +192,7 @@ public void eat(com.example.Item.FoodItem food){
 }
 
 // 喝饮料的方法
-public void drink(com.example.Item.DrinkItem drink){
+public void drink(com.example.item.DrinkItem drink){
     changeThirst(drink.getThirstBoost());
     changeHealth(drink.getHealthBoost());
 
