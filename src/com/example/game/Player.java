@@ -5,10 +5,6 @@ import com.example.pet.Rinkko;
 
 // 创建类
 public class Player {
-    public static void main(String[] args) {
-
-
-    }
 
     //创建字段
     private int money;
@@ -102,13 +98,7 @@ public class Player {
         }
     }
 
-    // // 方法：passTurnUpdate
-    // public void passTurnUpdate() {
-    //     changeHunger(-5);
-    //     changeThirst(-5);
-    //     changehappiness(-2);
-    //     changeAffection(-1);
-    // }
+    
 
 }
 

@@ -18,7 +18,7 @@ public class Rinkko {
     private int affection = 30;
     // Q4
     private DebuffType currentDebuff = DebuffType.NONE;
-    private int DebuffTurnLeft = 0;
+    private int debuffTurnsLeft = 0;
 
     public static final int MAX_STAT_VALUE = 100;
     public static final int MIN_STAT_VALUE = 0;
@@ -108,15 +108,15 @@ public class Rinkko {
     }
 
     // 返回Debuff剩余回合
-    public int getDebuffTurnLeft(){
-        return DebuffTurnLeft;
+    public int getDebuffTurnsLeft(){
+        return debuffTurnsLeft;
     }
 
     // 返回Debuff状态描述
-    public String getdebuffStatusMessage(){
+    public String getDebuffStatusMessage(){
         if (currentDebuff != DebuffType.NONE) {
             return String.format("[负面状态: %s, 剩余: %d 回合]",
-            currentDebuff.getDescription(), DebuffTurnLeft);
+            currentDebuff.getDescription(), debuffTurnsLeft);
         }
         return "";
     }
@@ -139,10 +139,10 @@ public class Rinkko {
 
         // 2. Debuff处理
         if (currentDebuff != DebuffType.NONE) { // 如果当前有Debuff
-            DebuffTurnLeft--;
-            System.out.println(name + " 的 " + currentDebuff.getDescription() + " 状态还剩 " + DebuffTurnLeft + " 回合。");
+            debuffTurnsLeft--;
+            System.out.println(name + " 的 " + currentDebuff.getDescription() + " 状态还剩 " + debuffTurnsLeft + " 回合。");
 
-            if (DebuffTurnLeft == 0) {
+            if (debuffTurnsLeft == 0) {
                 System.out.println("由于" + name + "的" + currentDebuff.getDescription() + "状态长时间未被照料，好感度下降了！(-15 好感)");
                 changeAffection(-15);
                 currentDebuff = DebuffType.NONE;
@@ -153,30 +153,30 @@ public class Rinkko {
         // 按优先级顺序检查
         if (health < HEALTH_THRESHOLD_FOR_SICK && currentDebuff != DebuffType.SICK) {
             currentDebuff = DebuffType.SICK;
-            DebuffTurnLeft = DEBUFF_DURATION + 1; // 生病持续更久
-            System.out.println(name + " 进入了 生病 状态！持续 " + DebuffTurnLeft + " 回合。");
+            debuffTurnsLeft = DEBUFF_DURATION + 1; // 生病持续更久
+            System.out.println(name + " 进入了 生病 状态！持续 " + debuffTurnsLeft + " 回合。");
         } else if (hunger < HUNGER_THRESHOLD && currentDebuff != DebuffType.HUNGRY) {
             currentDebuff = DebuffType.HUNGRY;
-            DebuffTurnLeft = DEBUFF_DURATION;
-            System.out.println(name + " 进入了 饿了 状态！持续 " + DebuffTurnLeft + " 回合。");
+            debuffTurnsLeft = DEBUFF_DURATION;
+            System.out.println(name + " 进入了 饿了 状态！持续 " + debuffTurnsLeft + " 回合。");
         } else if (thirst < THIRST_THRESHOLD && currentDebuff != DebuffType.THIRSTY) {
             // 这里之前少了个判断
             currentDebuff = DebuffType.THIRSTY;
-            DebuffTurnLeft = DEBUFF_DURATION;
-            System.out.println(name + " 进入了 渴了 状态！持续 " + DebuffTurnLeft + " 回合。");
+            debuffTurnsLeft = DEBUFF_DURATION;
+            System.out.println(name + " 进入了 渴了 状态！持续 " + debuffTurnsLeft + " 回合。");
         } else if (mood < MOOD_THRESHOLD && currentDebuff != DebuffType.UNHAPPY) {
             currentDebuff = DebuffType.UNHAPPY;
-            DebuffTurnLeft = DEBUFF_DURATION;
-            System.out.println(name + " 进入了 不开心 状态！持续 " + DebuffTurnLeft + " 回合。");
+            debuffTurnsLeft = DEBUFF_DURATION;
+            System.out.println(name + " 进入了 不开心 状态！持续 " + debuffTurnsLeft + " 回合。");
         }
     }
 
 
     // 主动清除指定 Debuff
-public void clearDebuff(DebuffType typeToClear) {
+    public void clearDebuff(DebuffType typeToClear) {
     if (currentDebuff == typeToClear) {
         currentDebuff = DebuffType.NONE;
-        DebuffTurnLeft = 0;
+        debuffTurnsLeft = 0;
         System.out.println(name + " 的 " + typeToClear.getDescription() + " 状态被清除！");
     }
 }
@@ -211,7 +211,7 @@ public void drink(com.example.item.DrinkItem drink){
     String status = String.format("[凛喵喵名]:%s, 饱食度: %d/%d, 口渴度: %d/%d, 心情: %d/%d, 健康: %d/%d, 好感度: %d/%d]",
     name,hunger,MAX_STAT_VALUE,thirst,MAX_STAT_VALUE,mood,MAX_STAT_VALUE,health,MAX_STAT_VALUE,affection,MAX_STAT_VALUE);
 
-    String debuffStatusMessage = getdebuffStatusMessage();
+    String debuffStatusMessage = getDebuffStatusMessage();
     if (!debuffStatusMessage.isEmpty()) {
         status += debuffStatusMessage;
     }
@@ -256,41 +256,5 @@ public void takeMedicine(MedicineItem medicine){
 
     return earned;
  }
-
-
-public static void main(String[] args) {
-    Rinkko rinkko = new Rinkko();
-    rinkko.setName("可爱凛喵喵");
-
-    System.out.println("新喵喵状态：");
-    System.out.println(rinkko.getStatus());
-
-//     // 测试状态调整方法
-
-// rinkko.changeHunger(-30);
-// rinkko.changeThirst(15);
-// rinkko.changeMood(-50);
-// rinkko.changeHealth(-10);
-// rinkko.changeAffection(1314490);
-
-// // 状态调整后
-
-// System.out.println("状态调整后：");
-// System.out.println(rinkko.getStatus());
-
-//Debuff测试
-System.out.println("--- 游戏开始：Debuff 测试 ---");
-System.out.println(rinkko.getStatus());
-
-// 模拟10回合
-for(int i = 0; i < 10;i++){
-    System.out.println("\n---第" + (i+1)+"回合---");
-    rinkko.passTurnUpdate();
-    System.out.println(rinkko.getStatus());
-}
-}
-
-
-
 
 }
