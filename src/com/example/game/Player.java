@@ -76,10 +76,15 @@ public class Player {
         if (pets.isEmpty()) {
             System.out.println("你还没有任何一只凛喵喵，请加油！");
         } else {
-            System.out.println("这是你的凛喵喵，请查收：");
+            System.out.println("\n📋 当前凛喵喵状态报告：");
+            System.out.println("═══════════════════════════════");
             for(int i = 0; i < pets.size(); i++){
-                System.out.println((i + 1) + "." + pets.get(i).getStatus());
+                System.out.println(pets.get(i).getStatus());
+                if (i < pets.size() - 1) { // 如果不是最后一只，添加分隔线
+                    System.out.println("───────────────────────────────");
+                }
             }
+            System.out.println("═══════════════════════════════");
         }
     }
 
