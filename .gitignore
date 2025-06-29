@@ -86,7 +86,3 @@ coverage/
 # 文档生成
 doc/
 docs/generated/
-/CLAUDE.md
-/修正事项.md
-/注意事项.md
->>>>>>> refs/heads/revise
