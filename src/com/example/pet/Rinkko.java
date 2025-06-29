@@ -10,6 +10,7 @@ import com.example.item.*;
 public class Rinkko {
 
     // 创建字段
+    private int id;
     private String name;
     private int hunger = 80;
     private int thirst = 80;
@@ -66,6 +67,16 @@ public class Rinkko {
 
     public int getAffection(){
         return affection;
+    }
+
+    // 方法：获取ID
+    public int getId() {
+        return this.id;
+    }
+
+    // 方法：设置ID
+    public void setId(int id) {
+        this.id = id;
     }
 
     // 状态调整方法
