@@ -18,7 +18,7 @@ public class Rinkko {
     private int affection = 30;
     // Q4
     private DebuffType currentDebuff = DebuffType.NONE;
-    private int DebuffTurnLeft = 0;
+    private int debuffTurnsLeft = 0;
 
     public static final int MAX_STAT_VALUE = 100;
     public static final int MIN_STAT_VALUE = 0;
@@ -68,13 +68,6 @@ public class Rinkko {
         return affection;
     }
 
-    // 定义 adjustStatus 方法
-
-    private int adjustStatus(int currentStatus, int amount){
-        int newStatus = currentStatus + amount;
-        return Math.max(MIN_STAT_VALUE, Math.min(MAX_STAT_VALUE, newStatus));
-    }
-
     // 状态调整方法
 
     protected void changeHunger(int amount){
@@ -85,7 +78,7 @@ public class Rinkko {
         this.thirst = Math.max(MIN_STAT_VALUE, Math.min(MAX_STAT_VALUE, this.thirst + amount));
     }
 
-    protected void changeMood(int amount){
+    public void changeMood(int amount){
         this.mood = Math.max(MIN_STAT_VALUE, Math.min(MAX_STAT_VALUE, this.mood + amount));
     }
 
@@ -108,75 +101,91 @@ public class Rinkko {
     }
 
     // 返回Debuff剩余回合
-    public int getDebuffTurnLeft(){
-        return DebuffTurnLeft;
+    public int getDebuffTurnsLeft(){
+        return debuffTurnsLeft;
     }
 
     // 返回Debuff状态描述
-    public String getdebuffStatusMessage(){
+    public String getDebuffStatusMessage(){
         if (currentDebuff != DebuffType.NONE) {
             return String.format("[负面状态: %s, 剩余: %d 回合]",
-            currentDebuff.getDescription(), DebuffTurnLeft);
+            currentDebuff.getDescription(), debuffTurnsLeft);
         }
         return "";
     }
 
     // 每回合状态衰减和Debuff处理
     public void passTurnUpdate() {
-        System.out.println(name + " 状态发生自然变化。");
+        System.out.println("🕒 " + name + " 的状态变化：");
+        
         // 1. 状态自然衰减
         changeHunger(-5);
         changeThirst(-7);
         changeMood(-3);
         changeHealth(-2); // 修正：这是基础健康衰减
 
+        // 显示基础变化
+        System.out.println("   自然消耗: 饱食-5, 口渴-7, 心情-3, 健康-2");
+
+        // 额外状态影响
         if (health < 50) {
             changeMood(-2); // 健康度低额外降低心情
+            System.out.println("   💔 健康状况不佳，心情额外下降-2");
         }
         if (hunger < HUNGER_THRESHOLD || thirst < THIRST_THRESHOLD) {
             changeHealth(-3); // 饥饿或口渴额外降低健康
+            System.out.println("   🚨 饥饿或口渴严重，健康额外下降-3");
         }
 
         // 2. Debuff处理
         if (currentDebuff != DebuffType.NONE) { // 如果当前有Debuff
-            DebuffTurnLeft--;
-            System.out.println(name + " 的 " + currentDebuff.getDescription() + " 状态还剩 " + DebuffTurnLeft + " 回合。");
+            debuffTurnsLeft--;
+            System.out.println("   ⚠️ " + currentDebuff.getDescription() + " 状态持续中 (剩余 " + debuffTurnsLeft + " 回合)");
 
-            if (DebuffTurnLeft == 0) {
-                System.out.println("由于" + name + "的" + currentDebuff.getDescription() + "状态长时间未被照料，好感度下降了！(-15 好感)");
+            if (debuffTurnsLeft == 0) {
+                System.out.println("   😠 长时间的 " + currentDebuff.getDescription() + " 让 " + name + " 对你失去了信任！(-15 好感)");
                 changeAffection(-15);
                 currentDebuff = DebuffType.NONE;
             }
         }
 
         // 3. 检查是否触发新的Debuff (与旧的Debuff处理分离)
-        // 按优先级顺序检查
+        // 显示所有需要注意的状态警告
+        if (hunger < HUNGER_THRESHOLD) {
+            System.out.println("   ⚠️ " + name + " 饿坏了！需要食物");
+        }
+        if (thirst < THIRST_THRESHOLD) {
+            System.out.println("   ⚠️ " + name + " 渴坏了！需要水分");
+        }
+        if (mood < MOOD_THRESHOLD) {
+            System.out.println("   ⚠️ " + name + " 心情很糟！需要陪伴");
+        }
+        if (health < HEALTH_THRESHOLD_FOR_SICK) {
+            System.out.println("   ⚠️ " + name + " 生病了！需要治疗");
+        }
+        
+        // 按优先级设置主要Debuff（用于游戏机制）
         if (health < HEALTH_THRESHOLD_FOR_SICK && currentDebuff != DebuffType.SICK) {
             currentDebuff = DebuffType.SICK;
-            DebuffTurnLeft = DEBUFF_DURATION + 1; // 生病持续更久
-            System.out.println(name + " 进入了 生病 状态！持续 " + DebuffTurnLeft + " 回合。");
+            debuffTurnsLeft = DEBUFF_DURATION + 1; // 生病持续更久
         } else if (hunger < HUNGER_THRESHOLD && currentDebuff != DebuffType.HUNGRY) {
             currentDebuff = DebuffType.HUNGRY;
-            DebuffTurnLeft = DEBUFF_DURATION;
-            System.out.println(name + " 进入了 饿了 状态！持续 " + DebuffTurnLeft + " 回合。");
+            debuffTurnsLeft = DEBUFF_DURATION;
         } else if (thirst < THIRST_THRESHOLD && currentDebuff != DebuffType.THIRSTY) {
-            // 这里之前少了个判断
             currentDebuff = DebuffType.THIRSTY;
-            DebuffTurnLeft = DEBUFF_DURATION;
-            System.out.println(name + " 进入了 渴了 状态！持续 " + DebuffTurnLeft + " 回合。");
+            debuffTurnsLeft = DEBUFF_DURATION;
         } else if (mood < MOOD_THRESHOLD && currentDebuff != DebuffType.UNHAPPY) {
             currentDebuff = DebuffType.UNHAPPY;
-            DebuffTurnLeft = DEBUFF_DURATION;
-            System.out.println(name + " 进入了 不开心 状态！持续 " + DebuffTurnLeft + " 回合。");
+            debuffTurnsLeft = DEBUFF_DURATION;
         }
     }
 
 
     // 主动清除指定 Debuff
-public void clearDebuff(DebuffType typeToClear) {
+    public void clearDebuff(DebuffType typeToClear) {
     if (currentDebuff == typeToClear) {
         currentDebuff = DebuffType.NONE;
-        DebuffTurnLeft = 0;
+        debuffTurnsLeft = 0;
         System.out.println(name + " 的 " + typeToClear.getDescription() + " 状态被清除！");
     }
 }
@@ -208,16 +217,33 @@ public void drink(com.example.item.DrinkItem drink){
 
 // 获取凛喵喵状态
     public String getStatus(){
-    String status = String.format("[凛喵喵名]:%s, 饱食度: %d/%d, 口渴度: %d/%d, 心情: %d/%d, 健康: %d/%d, 好感度: %d/%d]",
-    name,hunger,MAX_STAT_VALUE,thirst,MAX_STAT_VALUE,mood,MAX_STAT_VALUE,health,MAX_STAT_VALUE,affection,MAX_STAT_VALUE);
-
-    String debuffStatusMessage = getdebuffStatusMessage();
-    if (!debuffStatusMessage.isEmpty()) {
-        status += debuffStatusMessage;
+        StringBuilder status = new StringBuilder();
+        status.append(String.format("🐱 %s", name));
+        
+        // 状态条显示
+        status.append(String.format("\n   饱食度: %s %d/100", getStatusBar(hunger), hunger));
+        status.append(String.format("\n   口渴度: %s %d/100", getStatusBar(thirst), thirst));
+        status.append(String.format("\n   心情值: %s %d/100", getStatusBar(mood), mood));
+        status.append(String.format("\n   健康值: %s %d/100", getStatusBar(health), health));
+        status.append(String.format("\n   好感度: %s %d/100", getStatusBar(affection), affection));
+        
+        // Debuff状态
+        String debuffStatusMessage = getDebuffStatusMessage();
+        if (!debuffStatusMessage.isEmpty()) {
+            status.append("\n   ").append(debuffStatusMessage);
+        }
+        
+        return status.toString();
     }
-    return status;
-
-}
+    
+    // 生成状态条的辅助方法
+    private String getStatusBar(int value) {
+        if (value >= 80) return "😊"; // 很好
+        else if (value >= 60) return "🙂"; // 良好
+        else if (value >= 40) return "😐"; // 一般
+        else if (value >= 20) return "😟"; // 不佳
+        else return "😵"; // 很糟
+    }
 
 // 和凛喵喵玩耍方法
 public void playWith(PlayActivityItem activity){
@@ -256,41 +282,5 @@ public void takeMedicine(MedicineItem medicine){
 
     return earned;
  }
-
-
-public static void main(String[] args) {
-    Rinkko rinkko = new Rinkko();
-    rinkko.setName("可爱凛喵喵");
-
-    System.out.println("新喵喵状态：");
-    System.out.println(rinkko.getStatus());
-
-//     // 测试状态调整方法
-
-// rinkko.changeHunger(-30);
-// rinkko.changeThirst(15);
-// rinkko.changeMood(-50);
-// rinkko.changeHealth(-10);
-// rinkko.changeAffection(1314490);
-
-// // 状态调整后
-
-// System.out.println("状态调整后：");
-// System.out.println(rinkko.getStatus());
-
-//Debuff测试
-System.out.println("--- 游戏开始：Debuff 测试 ---");
-System.out.println(rinkko.getStatus());
-
-// 模拟10回合
-for(int i = 0; i < 10;i++){
-    System.out.println("\n---第" + (i+1)+"回合---");
-    rinkko.passTurnUpdate();
-    System.out.println(rinkko.getStatus());
-}
-}
-
-
-
 
 }
