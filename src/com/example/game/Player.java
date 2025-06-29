@@ -24,6 +24,11 @@ public class Player {
         return this.money;
     }
 
+    // 方法：设置金钱
+    public void setMoney(int money) {
+        this.money = money;
+    }
+
     //方法：增加金钱
     public void addMoney(int amount){
         if(amount > 0){

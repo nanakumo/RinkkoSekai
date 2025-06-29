@@ -27,9 +27,9 @@ public class RinkkoDAOTest {
         System.out.println("\n1. 测试数据库初始化...");
         try {
             DatabaseManager.initializeDatabase();
-            System.out.println("✅ 数据库初始化成功");
+            System.out.println("[√] 数据库初始化成功");
         } catch (Exception e) {
-            System.out.println("❌ 数据库初始化失败: " + e.getMessage());
+            System.out.println("[X] 数据库初始化失败: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -50,9 +50,9 @@ public class RinkkoDAOTest {
             dao.save(testPet, 1); // 玩家ID为1
             
             System.out.println("保存后 - ID: " + testPet.getId());
-            System.out.println("✅ 保存功能测试成功");
+            System.out.println("[√] 保存功能测试成功");
         } catch (Exception e) {
-            System.out.println("❌ 保存功能测试失败: " + e.getMessage());
+            System.out.println("[X] 保存功能测试失败: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -77,9 +77,9 @@ public class RinkkoDAOTest {
                 System.out.println("    健康: " + pet.getHealth());
                 System.out.println("    好感: " + pet.getAffection());
             }
-            System.out.println("✅ 查询功能测试成功");
+            System.out.println("[√] 查询功能测试成功");
         } catch (Exception e) {
-            System.out.println("❌ 查询功能测试失败: " + e.getMessage());
+            System.out.println("[X] 查询功能测试失败: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -116,12 +116,12 @@ public class RinkkoDAOTest {
             if (updatedPet != null) {
                 System.out.println("验证更新 - 名称: " + updatedPet.getName());
                 System.out.println("验证更新 - 心情: " + updatedPet.getMood());
-                System.out.println("✅ 更新功能测试成功");
+                System.out.println("[√] 更新功能测试成功");
             } else {
-                System.out.println("❌ 更新后无法找到宠物");
+                System.out.println("[X] 更新后无法找到宠物");
             }
         } catch (Exception e) {
-            System.out.println("❌ 更新功能测试失败: " + e.getMessage());
+            System.out.println("[X] 更新功能测试失败: " + e.getMessage());
             e.printStackTrace();
         }
     }

@@ -44,6 +44,17 @@ public class Rinkko {
 
     }
 
+    // Database loading constructor
+    public Rinkko(int id, String name, int hunger, int thirst, int mood, int health, int affection) {
+        this.id = id;
+        this.name = name;
+        this.hunger = hunger;
+        this.thirst = thirst;
+        this.mood = mood;
+        this.health = health;
+        this.affection = affection;
+    }
+
     // 获取字段（Getter
     public String getName(){
         return name;
