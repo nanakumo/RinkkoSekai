@@ -53,9 +53,18 @@ public class Player {
     }
 
     // getPets
-
     public ArrayList<Rinkko> getPets(){
         return pets;
+    }
+    
+    // getRinkkoList (Web版本兼容)
+    public ArrayList<Rinkko> getRinkkoList(){
+        return pets;
+    }
+    
+    // setRinkkoList (Web版本兼容)
+    public void setRinkkoList(ArrayList<Rinkko> rinkkoList){
+        this.pets = rinkkoList;
     }
 
     // 方法：根据索引搜索凛喵喵
