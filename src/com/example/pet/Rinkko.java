@@ -17,6 +17,7 @@ public class Rinkko {
     private int mood = 70;
     private int health = 90;
     private int affection = 30;
+    private int playerId;  // Web版本需要的字段
     // Q4
     private DebuffType currentDebuff = DebuffType.NONE;
     private int debuffTurnsLeft = 0;
@@ -42,6 +43,16 @@ public class Rinkko {
         this.health = 90;
         this.affection = 30;
 
+    }
+
+    // Web版本构造函数：通过名字创建新宠物
+    public Rinkko(String name) {
+        this.name = name;
+        this.hunger = 80;
+        this.thirst = 80;
+        this.mood = 70;
+        this.health = 90;
+        this.affection = 30;
     }
 
     // Database loading constructor
@@ -88,6 +99,15 @@ public class Rinkko {
     // 方法：设置ID
     public void setId(int id) {
         this.id = id;
+    }
+    
+    // Web版本需要的playerId方法
+    public int getPlayerId() {
+        return this.playerId;
+    }
+    
+    public void setPlayerId(int playerId) {
+        this.playerId = playerId;
     }
 
     // 状态调整方法
