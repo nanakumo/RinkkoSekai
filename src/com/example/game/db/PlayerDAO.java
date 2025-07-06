@@ -54,4 +54,17 @@ public class PlayerDAO {
             e.printStackTrace();
         }
     }
+    
+    // Web版本兼容方法
+    public Player getPlayer() {
+        return findById(1);
+    }
+    
+    public void savePlayer(Player player) {
+        save(player);
+    }
+    
+    public void updatePlayer(Player player) {
+        save(player);
+    }
 }

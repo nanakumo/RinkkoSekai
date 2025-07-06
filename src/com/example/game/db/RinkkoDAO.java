@@ -108,4 +108,21 @@ public class RinkkoDAO {
             rs.getInt("affection")
         );
     }
+    
+    // Web版本兼容方法
+    public List<Rinkko> getAllRinkkosByPlayerId(int playerId) {
+        return findByPlayerId(playerId);
+    }
+    
+    public Rinkko getRinkkoById(int id) {
+        return findById(id);
+    }
+    
+    public void saveRinkko(Rinkko pet) {
+        save(pet, pet.getPlayerId());
+    }
+    
+    public void updateRinkko(Rinkko pet) {
+        update(pet);
+    }
 }
