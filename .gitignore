@@ -86,9 +86,12 @@ coverage/
 # 文档生成
 doc/
 docs/generated/
+<<<<<<< HEAD
 /CLAUDE.md
 /修正事项.md
 /注意事项.md
 >>>>>>> refs/heads/revise
 /REPLIT_DEPLOYMENT.md
 /数据库部分.md
+=======
+>>>>>>> branch 'master' of https://github.com/nanakumo/RinkkoSekai.git
