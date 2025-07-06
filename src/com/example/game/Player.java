@@ -7,6 +7,7 @@ import com.example.pet.Rinkko;
 public class Player {
 
     //创建字段
+    private int id;
     private int money;
     private ArrayList<Rinkko> pets;
 
@@ -21,6 +22,11 @@ public class Player {
     // 方法：获取金钱
     public int getMoney(){
         return this.money;
+    }
+
+    // 方法：设置金钱
+    public void setMoney(int money) {
+        this.money = money;
     }
 
     //方法：增加金钱
@@ -68,6 +74,16 @@ public class Player {
             }
         }
         return null; // 如果没有找到任何宠物，返回 null
+    }
+
+    // 方法：获取ID
+    public int getId() {
+        return this.id;
+    }
+
+    // 方法：设置ID
+    public void setId(int id) {
+        this.id = id;
     }
 
 

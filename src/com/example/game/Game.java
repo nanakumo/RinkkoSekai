@@ -5,8 +5,11 @@ import java.util.Scanner;
 import java.util.Random;
 import java.util.List;
 import java.util.ArrayList;
+import java.io.IOException;
 import com.example.item.*;
-
+import com.example.game.db.DatabaseManager;
+import com.example.game.db.RinkkoDAO;
+import com.example.game.db.PlayerDAO;
 
 public class Game {
     private Player player;
@@ -20,16 +23,21 @@ public class Game {
     private List<PlayActivityItem> availablePlayActivities;
     private List<MedicineItem> availableMedicines;
 
-    // 新增字段用于存储各项操作的最低费用，以便在菜单中动态显示。
     private int minFoodCost;
     private int minDrinkCost;
     private int minPlayCost;
     private int minMedicineCost;
 
+    private RinkkoDAO rinkkoDAO;
+    private PlayerDAO playerDAO;
+
     public Game() {
-        this.player = new Player();
+        DatabaseManager.initializeDatabase();
+        this.rinkkoDAO = new RinkkoDAO();
+        this.playerDAO = new PlayerDAO();
         this.scanner = new Scanner(System.in, "UTF-8");
         this.random = new Random();
+        loadOrCreatePlayer();
 
         this.availableFoods = new ArrayList<>();
         availableFoods.add(new FoodItem("普通汉堡", 10, 30, 5));
@@ -47,11 +55,78 @@ public class Game {
         availableMedicines.add(new MedicineItem("普通感冒药", 50, 40, -5));
         availableMedicines.add(new MedicineItem("特效活力药水", 80, 70, -10));
 
-        // 初始化各项操作的最低费用
         minFoodCost = availableFoods.stream().mapToInt(MenuItem::getCost).min().orElse(0);
         minDrinkCost = availableDrinks.stream().mapToInt(MenuItem::getCost).min().orElse(0);
         minPlayCost = availablePlayActivities.stream().mapToInt(MenuItem::getCost).min().orElse(0);
         minMedicineCost = availableMedicines.stream().mapToInt(MenuItem::getCost).min().orElse(0);
+    }
+
+    private char readSingleChar() {
+        try {
+            // Unix/Linux/WSL - disable canonical mode for single key input
+            ProcessBuilder pb = new ProcessBuilder("stty", "-icanon", "min", "1");
+            pb.inheritIO();
+            Process p = pb.start();
+            p.waitFor();
+            
+            int ch = System.in.read();
+            System.out.println(); // 输出换行让界面更整洁
+            
+            // Restore canonical mode
+            ProcessBuilder pb2 = new ProcessBuilder("stty", "icanon");
+            pb2.inheritIO();
+            Process p2 = pb2.start();
+            p2.waitFor();
+            
+            return Character.toUpperCase((char) ch);
+        } catch (Exception e) {
+            // Fallback to regular input if stty fails
+            System.out.print("输入后按回车: ");
+            String input = scanner.nextLine().trim().toUpperCase();
+            if (input.isEmpty()) {
+                return '\0';
+            }
+            return input.charAt(0);
+        }
+    }
+
+    private void loadOrCreatePlayer() {
+        Player loadedPlayer = playerDAO.findById(1);
+
+        if (loadedPlayer == null) {
+            System.out.println("未找到玩家存档，创建新玩家。");
+            this.player = new Player();
+            player.setId(1);
+            playerDAO.save(player);
+        } else {
+            System.out.println("成功加载玩家存档。");
+            this.player = loadedPlayer;
+        }
+
+        List<Rinkko> pets = rinkkoDAO.findByPlayerId(player.getId());
+        if (!pets.isEmpty()) {
+             System.out.println("成功加载宠物存档。");
+            for(Rinkko pet : pets) {
+                player.addPet(pet);
+            }
+        } else {
+             System.out.println("玩家还没有宠物。");
+        }
+    }
+
+    private void saveGame() {
+        System.out.println("正在保存游戏...");
+        
+        playerDAO.save(player);
+
+        for (Rinkko pet : player.getPets()) {
+            if (pet.getId() == 0) {
+                rinkkoDAO.save(pet, player.getId());
+            } else {
+                rinkkoDAO.update(pet);
+            }
+        }
+        System.out.println("游戏已保存！");
     }
 
     private <T extends MenuItem> T selectItemFromMenu(List<T> items, String prompt) {
@@ -61,15 +136,16 @@ public class Game {
             System.out.println((i + 1) + ". " + item.getName() + " (" + item.getDescription() + ")");
         }
         System.out.println("0. 返回上一级");
+        System.out.println("💡 提示：直接按数字键即可");
 
         int choice = -1;
         while (choice < 0 || choice > items.size()) {
-            System.out.println("请输入你的选择：");
-            if (scanner.hasNextInt()) {
-                choice = scanner.nextInt();
-                scanner.nextLine(); // consume newline
+            char input = readSingleChar();
+            if (Character.isDigit(input)) {
+                choice = Character.getNumericValue(input);
             } else {
-                scanner.next();
+                System.out.println("请输入有效数字！");
+                continue;
             }
         }
 
@@ -96,19 +172,25 @@ public class Game {
             System.out.printf("%d. %s\n", i + 1, pets.get(i).getName());
         }
         System.out.println("0. 返回");
+        System.out.println("💡 提示：直接按数字键即可");
 
-        int choice = scanner.nextInt();
-        scanner.nextLine();
+        int choice = -1;
+        while (choice < 0 || choice > pets.size()) {
+            char input = readSingleChar();
+            if (Character.isDigit(input)) {
+                choice = Character.getNumericValue(input);
+            } else {
+                System.out.println("请输入有效数字！");
+                continue;
+            }
+        }
 
         if (choice == 0) {
             System.out.println("✅ 已返回主菜单");
             return null;
-        } else if (choice < 1 || choice > pets.size()) {
-            System.out.println("❌ 无效选择，操作取消");
-            return null;
+        } else {
+            return pets.get(choice - 1);
         }
-
-        return pets.get(choice - 1);
     }
 
     public void endTurn() {
@@ -119,33 +201,27 @@ public class Game {
         System.out.println("──────── 回合结束 ────────");
     }
 
-    // 新增：随机事件系统
     public void triggerRandomEvent() {
-        // 如果没有宠物，则不触发随机事件
         if (player.getPets().isEmpty()) {
             return;
         }
         
-        // 设定30%的几率触发一个随机事件
         if (random.nextInt(100) < 30) {
-            int eventType = random.nextInt(3); // 目前有3种事件
-            Rinkko targetPet = player.getPet(random.nextInt(player.getPets().size())); // 随机选择一只宠物
+            int eventType = random.nextInt(3);
+            Rinkko targetPet = player.getPet(random.nextInt(player.getPets().size()));
 
             System.out.println("【突发事件!】");
             switch (eventType) {
                 case 0:
-                    // 正面事件：捡到钱
-                    int foundMoney = random.nextInt(21) + 10; // 捡到10-30金币
+                    int foundMoney = random.nextInt(21) + 10;
                     player.addMoney(foundMoney);
                     System.out.println("你在路上捡到了 " + foundMoney + " 金币！真是幸运的一天！");
                     break;
                 case 1:
-                    // 负面事件：宠物心情不好
                     System.out.println(targetPet.getName() + " 好像做了一个噩梦，心情似乎变差了。(-5 心情)");
                     targetPet.changeMood(-5);
                     break;
                 case 2:
-                    // 中性事件：天气
                     System.out.println("窗外的天气真好，" + targetPet.getName() + " 看起来很想出去玩。");
                     break;
             }
@@ -162,7 +238,7 @@ public class Game {
     }
 
     public boolean checkGameOverCondition() {
-        if (player.getPets().isEmpty()) return false; // 防止没有凛喵喵时误判
+        if (player.getPets().isEmpty()) return false;
         for (Rinkko pet : player.getPets()) {
             if (pet.getAffection() <= Rinkko.MIN_STAT_VALUE) {
                 System.out.println(pet.getName() + "因为好感度降到了冰点，离开了你...");
@@ -231,57 +307,69 @@ public class Game {
     }
 
     private void adoptNewPet() {
+        String[] petTypes = {"懒散", "活泼", "高贵", "顽皮", "温柔"};
+        String[] petNames = {"小咪", "小雪", "小花", "小黑", "小白"};
+        
         while (true) {
-            System.out.println("你想要哪一款凛喵喵（输入 'back' 可返回上一级）：");
-            String prefix = scanner.nextLine();
+            System.out.println("请选择凛喵喵的性格：");
+            for (int i = 0; i < petTypes.length; i++) {
+                System.out.println((i + 1) + ". " + petTypes[i] + "的" + petNames[i]);
+            }
+            System.out.println("0. 返回上一级");
+            System.out.println("💡 提示：直接按数字键即可");
             
-            if (prefix.equalsIgnoreCase("back")) {
+            int choice = -1;
+            while (choice < 0 || choice > petTypes.length) {
+                char input = readSingleChar();
+                if (Character.isDigit(input)) {
+                    choice = Character.getNumericValue(input);
+                } else {
+                    System.out.println("请输入有效数字！");
+                    continue;
+                }
+            }
+            
+            if (choice == 0) {
                 System.out.println("✅ 已取消领养");
                 return;
             }
-
-            System.out.println("请给它取个可爱的名字吧（输入 'back' 可重新选择性格）：");
-            String baseName = scanner.nextLine();
             
-            if (baseName.equalsIgnoreCase("back")) {
-                System.out.println("🔄 重新选择性格");
-                continue;
-            }
+            String selectedType = petTypes[choice - 1];
+            String selectedName = petNames[choice - 1];
+            String fullName = selectedType + "的" + selectedName;
 
-            // 将用户输入的性格和名字组合起来
-            String fullName = prefix + "的" + baseName;
-
-            // 确认信息
             System.out.println("确认领养凛喵喵：" + fullName + " 吗？");
-            System.out.println("[Y] 确认 | [N] 重新输入 | [B] 取消领养");
-            String confirm = scanner.nextLine().trim().toUpperCase();
+            System.out.println("[Y] 确认 | [N] 重新选择 | [B] 取消领养");
+            System.out.println("💡 提示：直接按键即可，无需回车");
+            char confirm = readSingleChar();
             
             switch (confirm) {
-                case "Y":
+                case 'Y':
                     Rinkko newPet = new Rinkko();
                     newPet.setName(fullName);
                     player.addPet(newPet);
                     System.out.println("🎉 你成功领养了凛喵喵：" + fullName);
                     return;
-                case "N":
-                    System.out.println("🔄 重新输入信息");
+                case 'N':
+                    System.out.println("[重试] 重新选择");
                     continue;
-                case "B":
-                    System.out.println("✅ 已取消领养");
+                case 'B':
+                    System.out.println("[√] 已取消领养");
                     return;
                 default:
-                    System.out.println("❌ 无效选择，默认重新输入");
+                    System.out.println("[X] 无效选择，默认重新选择");
                     continue;
             }
         }
     }
 
     public void startGame() {
-        System.out.println("🌟 欢迎来到喵喵世界！你将领养属于你的可爱凛喵喵 🌟");
+        System.out.println("* 欢迎来到喵喵世界！你将领养属于你的可爱凛喵喵 *");
 
-        adoptNewPet();
+        if (player.getPets().isEmpty()) {
+            adoptNewPet();
+        }
         
-        // 显示初始状态
         player.listPets();
 
         while (true) {
@@ -294,38 +382,38 @@ public class Game {
                 System.out.println("[A] 领养新凛喵喵");
             }
             System.out.println("[S] 查看状态 | [Q] 退出游戏");
-            System.out.println("💡 提示：在所有子菜单中都可以输入 0 返回上一级");
+            System.out.println("💡 提示：直接按键即可，无需回车");
 
-            String input = scanner.nextLine().trim().toUpperCase();
+            char input = readSingleChar();
             boolean usedTurn = false;
 
             switch (input) {
-                case "F": {
+                case 'F': {
                     Rinkko pet = selectPetForAction();
                     if (pet != null) usedTurn = handleFeedAction(pet);
                     break;
                 }
-                case "D": {
+                case 'D': {
                     Rinkko pet = selectPetForAction();
                     if (pet != null) usedTurn = handleDrinkAction(pet);
                     break;
                 }
-                case "P": {
+                case 'P': {
                     Rinkko pet = selectPetForAction();
                     if (pet != null) usedTurn = handlePlayAction(pet);
                     break;
                 }
-                case "T": {
+                case 'T': {
                     Rinkko pet = selectPetForAction();
                     if (pet != null) usedTurn = handleTreatAction(pet);
                     break;
                 }
-                case "W": {
+                case 'W': {
                     Rinkko pet = selectPetForAction();
                     if (pet != null) usedTurn = handleWorkAction(pet);
                     break;
                 }
-                case "A": {
+                case 'A': {
                     if (player.getPets().size() < currentLevel) {
                         adoptNewPet();
                         usedTurn = true;
@@ -334,11 +422,12 @@ public class Game {
                     }
                     break;
                 }
-                case "S": {
+                case 'S': {
                     player.listPets();
                     break;
                 }
-                case "Q": {
+                case 'Q': {
+                    saveGame();
                     System.out.println("感谢游玩，期待下次再见！");
                     return;
                 }
@@ -348,20 +437,20 @@ public class Game {
 
             if (usedTurn) {
                 endTurn();
-                triggerRandomEvent(); // 在回合结束后触发随机事件
-                player.listPets(); // 回合结束后自动显示宠物状态
+                triggerRandomEvent();
+                player.listPets();
 
                 if (checkGameOverCondition()) {
-                    System.out.println("💀 游戏失败：所有凛喵喵失去了对你的信任。请好好反省！");
+                    System.out.println("[失败] 游戏失败：所有凛喵喵失去了对你的信任。请好好反省！");
                     return;
                 }
 
                 if (checkLevelWinCondition()) {
                     if (currentLevel == MAX_LEVEL) {
-                        System.out.println("🎉 恭喜你通关！所有凛喵喵都深深爱着你！");
+                        System.out.println("[通关] 恭喜你通关！所有凛喵喵都深深爱着你！");
                         return;
                     } else {
-                        System.out.println("🎊 恭喜你通过第 " + currentLevel + " 关！");
+                        System.out.println("[升级] 恭喜你通过第 " + currentLevel + " 关！");
                         currentLevel++;
                         System.out.println("你现在可以拥有 " + currentLevel + " 只凛喵喵！");
                     }
