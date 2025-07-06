@@ -1,1 +1,0 @@
-web: java -cp target/classes:lib/* com.example.game.RinkkoWebApplication

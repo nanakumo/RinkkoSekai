@@ -1,9 +1,0 @@
-{
-  "build": {
-    "builder": "NIXPACKS"
-  },
-  "deploy": {
-    "startCommand": "java -cp target/classes:lib/* com.example.game.RinkkoWebApplication",
-    "restartPolicyType": "ON_FAILURE"
-  }
-}
