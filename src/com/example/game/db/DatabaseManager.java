@@ -13,6 +13,16 @@ public class DatabaseManager {
     }
 
     public static void initializeDatabase() {
+        // Explicitly load SQLite JDBC driver
+        try {
+            Class.forName("org.sqlite.JDBC");
+            System.out.println("SQLite JDBC驱动加载成功！");
+        } catch (ClassNotFoundException e) {
+            System.err.println("SQLite JDBC驱动加载失败！请检查classpath中是否包含sqlite-jdbc jar文件。");
+            e.printStackTrace();
+            return;
+        }
+        
         String createPlayerTable = """
             CREATE TABLE IF NOT EXISTS player (
                 id INTEGER PRIMARY KEY,
@@ -38,7 +48,9 @@ public class DatabaseManager {
              Statement stmt = conn.createStatement()) {
             stmt.execute(createPlayerTable);
             stmt.execute(createRinkkoTable);
+            System.out.println("数据库初始化成功！");
         } catch (SQLException e) {
+            System.err.println("数据库初始化失败：");
             e.printStackTrace();
         }
     }

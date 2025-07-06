@@ -5,6 +5,7 @@ import java.util.Scanner;
 import java.util.Random;
 import java.util.List;
 import java.util.ArrayList;
+import java.io.IOException;
 import com.example.item.*;
 import com.example.game.db.DatabaseManager;
 import com.example.game.db.RinkkoDAO;
@@ -60,6 +61,35 @@ public class Game {
         minMedicineCost = availableMedicines.stream().mapToInt(MenuItem::getCost).min().orElse(0);
     }
 
+    private char readSingleChar() {
+        try {
+            // Unix/Linux/WSL - disable canonical mode for single key input
+            ProcessBuilder pb = new ProcessBuilder("stty", "-icanon", "min", "1");
+            pb.inheritIO();
+            Process p = pb.start();
+            p.waitFor();
+            
+            int ch = System.in.read();
+            System.out.println(); // 输出换行让界面更整洁
+            
+            // Restore canonical mode
+            ProcessBuilder pb2 = new ProcessBuilder("stty", "icanon");
+            pb2.inheritIO();
+            Process p2 = pb2.start();
+            p2.waitFor();
+            
+            return Character.toUpperCase((char) ch);
+        } catch (Exception e) {
+            // Fallback to regular input if stty fails
+            System.out.print("输入后按回车: ");
+            String input = scanner.nextLine().trim().toUpperCase();
+            if (input.isEmpty()) {
+                return '\0';
+            }
+            return input.charAt(0);
+        }
+    }
+
     private void loadOrCreatePlayer() {
         Player loadedPlayer = playerDAO.findById(1);
 
@@ -106,15 +136,16 @@ public class Game {
             System.out.println((i + 1) + ". " + item.getName() + " (" + item.getDescription() + ")");
         }
         System.out.println("0. 返回上一级");
+        System.out.println("💡 提示：直接按数字键即可");
 
         int choice = -1;
         while (choice < 0 || choice > items.size()) {
-            System.out.println("请输入你的选择：");
-            if (scanner.hasNextInt()) {
-                choice = scanner.nextInt();
-                scanner.nextLine(); // consume newline
+            char input = readSingleChar();
+            if (Character.isDigit(input)) {
+                choice = Character.getNumericValue(input);
             } else {
-                scanner.next();
+                System.out.println("请输入有效数字！");
+                continue;
             }
         }
 
@@ -141,19 +172,25 @@ public class Game {
             System.out.printf("%d. %s\n", i + 1, pets.get(i).getName());
         }
         System.out.println("0. 返回");
+        System.out.println("💡 提示：直接按数字键即可");
 
-        int choice = scanner.nextInt();
-        scanner.nextLine();
+        int choice = -1;
+        while (choice < 0 || choice > pets.size()) {
+            char input = readSingleChar();
+            if (Character.isDigit(input)) {
+                choice = Character.getNumericValue(input);
+            } else {
+                System.out.println("请输入有效数字！");
+                continue;
+            }
+        }
 
         if (choice == 0) {
             System.out.println("✅ 已返回主菜单");
             return null;
-        } else if (choice < 1 || choice > pets.size()) {
-            System.out.println("❌ 无效选择，操作取消");
-            return null;
+        } else {
+            return pets.get(choice - 1);
         }
-
-        return pets.get(choice - 1);
     }
 
     public void endTurn() {
@@ -270,44 +307,57 @@ public class Game {
     }
 
     private void adoptNewPet() {
+        String[] petTypes = {"懒散", "活泼", "高贵", "顽皮", "温柔"};
+        String[] petNames = {"小咪", "小雪", "小花", "小黑", "小白"};
+        
         while (true) {
-            System.out.println("你想要哪一款凛喵喵（输入 'back' 可返回上一级）：");
-            String prefix = scanner.nextLine();
+            System.out.println("请选择凛喵喵的性格：");
+            for (int i = 0; i < petTypes.length; i++) {
+                System.out.println((i + 1) + ". " + petTypes[i] + "的" + petNames[i]);
+            }
+            System.out.println("0. 返回上一级");
+            System.out.println("💡 提示：直接按数字键即可");
             
-            if (prefix.equalsIgnoreCase("back")) {
+            int choice = -1;
+            while (choice < 0 || choice > petTypes.length) {
+                char input = readSingleChar();
+                if (Character.isDigit(input)) {
+                    choice = Character.getNumericValue(input);
+                } else {
+                    System.out.println("请输入有效数字！");
+                    continue;
+                }
+            }
+            
+            if (choice == 0) {
                 System.out.println("✅ 已取消领养");
                 return;
             }
-
-            System.out.println("请给它取个可爱的名字吧（输入 'back' 可重新选择性格）：");
-            String baseName = scanner.nextLine();
             
-            if (baseName.equalsIgnoreCase("back")) {
-                System.out.println("[重试] 重新选择性格");
-                continue;
-            }
-
-            String fullName = prefix + "的" + baseName;
+            String selectedType = petTypes[choice - 1];
+            String selectedName = petNames[choice - 1];
+            String fullName = selectedType + "的" + selectedName;
 
             System.out.println("确认领养凛喵喵：" + fullName + " 吗？");
-            System.out.println("[Y] 确认 | [N] 重新输入 | [B] 取消领养");
-            String confirm = scanner.nextLine().trim().toUpperCase();
+            System.out.println("[Y] 确认 | [N] 重新选择 | [B] 取消领养");
+            System.out.println("💡 提示：直接按键即可，无需回车");
+            char confirm = readSingleChar();
             
             switch (confirm) {
-                case "Y":
+                case 'Y':
                     Rinkko newPet = new Rinkko();
                     newPet.setName(fullName);
                     player.addPet(newPet);
                     System.out.println("🎉 你成功领养了凛喵喵：" + fullName);
                     return;
-                case "N":
-                    System.out.println("[重试] 重新输入信息");
+                case 'N':
+                    System.out.println("[重试] 重新选择");
                     continue;
-                case "B":
+                case 'B':
                     System.out.println("[√] 已取消领养");
                     return;
                 default:
-                    System.out.println("[X] 无效选择，默认重新输入");
+                    System.out.println("[X] 无效选择，默认重新选择");
                     continue;
             }
         }
@@ -332,38 +382,38 @@ public class Game {
                 System.out.println("[A] 领养新凛喵喵");
             }
             System.out.println("[S] 查看状态 | [Q] 退出游戏");
-            System.out.println("💡 提示：在所有子菜单中都可以输入 0 返回上一级");
+            System.out.println("💡 提示：直接按键即可，无需回车");
 
-            String input = scanner.nextLine().trim().toUpperCase();
+            char input = readSingleChar();
             boolean usedTurn = false;
 
             switch (input) {
-                case "F": {
+                case 'F': {
                     Rinkko pet = selectPetForAction();
                     if (pet != null) usedTurn = handleFeedAction(pet);
                     break;
                 }
-                case "D": {
+                case 'D': {
                     Rinkko pet = selectPetForAction();
                     if (pet != null) usedTurn = handleDrinkAction(pet);
                     break;
                 }
-                case "P": {
+                case 'P': {
                     Rinkko pet = selectPetForAction();
                     if (pet != null) usedTurn = handlePlayAction(pet);
                     break;
                 }
-                case "T": {
+                case 'T': {
                     Rinkko pet = selectPetForAction();
                     if (pet != null) usedTurn = handleTreatAction(pet);
                     break;
                 }
-                case "W": {
+                case 'W': {
                     Rinkko pet = selectPetForAction();
                     if (pet != null) usedTurn = handleWorkAction(pet);
                     break;
                 }
-                case "A": {
+                case 'A': {
                     if (player.getPets().size() < currentLevel) {
                         adoptNewPet();
                         usedTurn = true;
@@ -372,11 +422,11 @@ public class Game {
                     }
                     break;
                 }
-                case "S": {
+                case 'S': {
                     player.listPets();
                     break;
                 }
-                case "Q": {
+                case 'Q': {
                     saveGame();
                     System.out.println("感谢游玩，期待下次再见！");
                     return;
