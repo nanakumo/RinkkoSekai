@@ -32,17 +32,17 @@
 - **Java 17** 或更高版本
 - **IDE**: VS Code、Eclipse 或 IntelliJ IDEA
 
-### 运行控制台版本
-
-1. 双击运行 `run.bat`
-2. 或在 IDE 中运行 `Game.java` 的 main 方法
-
 ### 运行 Web 版本
 
 1. 在 IDE 中打开项目
 2. 运行 `RinkkoWebApplication.java` 的 main 方法
 3. 浏览器访问 http://localhost:8080
 4. 开始游戏！
+
+### 运行控制台版本
+
+1. 双击运行 `run.bat`
+2. 或在 IDE 中运行 `Game.java` 的 main 方法
 
 ## 🛠️ 开发信息
 
