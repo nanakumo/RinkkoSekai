@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商店 - 凛喵喵世界</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛒 凛喵喵商店</h1>
+            <div class="player-info">
+                <span>金币：<strong th:text="${player.money}">100</strong></span>
+                <a href="/" class="btn btn-secondary">返回主页</a>
+            </div>
+        </header>
+
+        <main>
+            <div class="shop-section">
+                <h2>🍔 食物区</h2>
+                <div class="items-grid">
+                    <div class="item-card" th:each="food : ${foods}">
+                        <h3 th:text="${food.name}">食物名</h3>
+                        <p th:text="${food.description}">食物描述</p>
+                        <p class="price">💰 <span th:text="${food.cost}">10</span> 金币</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="shop-section">
+                <h2>🥤 饮品区</h2>
+                <div class="items-grid">
+                    <div class="item-card" th:each="drink : ${drinks}">
+                        <h3 th:text="${drink.name}">饮品名</h3>
+                        <p th:text="${drink.description}">饮品描述</p>
+                        <p class="price">💰 <span th:text="${drink.cost}">5</span> 金币</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="shop-section">
+                <h2>🎮 娱乐区</h2>
+                <div class="items-grid">
+                    <div class="item-card" th:each="activity : ${activities}">
+                        <h3 th:text="${activity.name}">娱乐名</h3>
+                        <p th:text="${activity.description}">娱乐描述</p>
+                        <p class="price">💰 <span th:text="${activity.cost}">10</span> 金币</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="shop-section">
+                <h2>💊 医疗区</h2>
+                <div class="items-grid">
+                    <div class="item-card" th:each="medicine : ${medicines}">
+                        <h3 th:text="${medicine.name}">药品名</h3>
+                        <p th:text="${medicine.description}">药品描述</p>
+                        <p class="price">💰 <span th:text="${medicine.cost}">30</span> 金币</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="shop-notice">
+                <h3>🛍️ 购买说明</h3>
+                <p>请前往宠物详情页面购买和使用物品</p>
+                <p>点击主页上的"照顾"按钮即可进入宠物详情页</p>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 凛喵喵世界 - 用爱心照顾你的虚拟宠物</p>
+        </footer>
+    </div>
+</body>
+</html>

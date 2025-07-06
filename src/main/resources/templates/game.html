@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>凛喵喵世界 - Rinkko Game</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🐱 凛喵喵世界</h1>
+            <div class="player-info">
+                <span>当前关卡：<strong th:text="${currentLevel}">1</strong></span>
+                <span>金币：<strong th:text="${player.money}">100</strong></span>
+            </div>
+        </header>
+
+        <main>
+            <div class="pets-section">
+                <h2>我的凛喵喵们</h2>
+                <div class="pets-grid" th:if="${player.rinkkoList != null and !player.rinkkoList.isEmpty()}">
+                    <div class="pet-card" th:each="pet : ${player.rinkkoList}">
+                        <h3 th:text="${pet.name}">宠物名</h3>
+                        <div class="pet-stats">
+                            <div class="stat-bar">
+                                <span>饥饿度</span>
+                                <div class="bar">
+                                    <div class="fill" th:style="'width: ' + ${pet.hunger} + '%'"></div>
+                                </div>
+                                <span th:text="${pet.hunger}">100</span>
+                            </div>
+                            <div class="stat-bar">
+                                <span>口渴度</span>
+                                <div class="bar">
+                                    <div class="fill" th:style="'width: ' + ${pet.thirst} + '%'"></div>
+                                </div>
+                                <span th:text="${pet.thirst}">100</span>
+                            </div>
+                            <div class="stat-bar">
+                                <span>心情</span>
+                                <div class="bar">
+                                    <div class="fill" th:style="'width: ' + ${pet.mood} + '%'"></div>
+                                </div>
+                                <span th:text="${pet.mood}">100</span>
+                            </div>
+                            <div class="stat-bar">
+                                <span>健康</span>
+                                <div class="bar">
+                                    <div class="fill" th:style="'width: ' + ${pet.health} + '%'"></div>
+                                </div>
+                                <span th:text="${pet.health}">100</span>
+                            </div>
+                            <div class="stat-bar">
+                                <span>好感度</span>
+                                <div class="bar">
+                                    <div class="fill" th:style="'width: ' + ${pet.affection} + '%'"></div>
+                                </div>
+                                <span th:text="${pet.affection}">100</span>
+                            </div>
+                        </div>
+                        <div class="pet-actions">
+                            <a th:href="@{/pet/{id}(id=${pet.id})}" class="btn btn-primary">照顾</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="no-pets" th:if="${player.rinkkoList == null or player.rinkkoList.isEmpty()}">
+                    <p>你还没有凛喵喵，快去领养一只吧！</p>
+                </div>
+            </div>
+
+            <div class="actions-section">
+                <h2>游戏操作</h2>
+                <div class="actions-grid">
+                    <div class="action-card" th:if="${player.rinkkoList.size() < currentLevel}">
+                        <h3>领养新凛喵喵</h3>
+                        <p>你可以拥有 <span th:text="${currentLevel}">1</span> 只凛喵喵</p>
+                        <form method="post" action="/create-pet">
+                            <input type="text" name="name" placeholder="给凛喵喵起个名字" required>
+                            <button type="submit" class="btn btn-success">领养</button>
+                        </form>
+                    </div>
+                    
+                    <div class="action-card">
+                        <h3>商店</h3>
+                        <p>购买食物、饮品和药品</p>
+                        <a href="/shop" class="btn btn-info">进入商店</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 凛喵喵世界 - 用爱心照顾你的虚拟宠物</p>
+        </footer>
+    </div>
+</body>
+</html>

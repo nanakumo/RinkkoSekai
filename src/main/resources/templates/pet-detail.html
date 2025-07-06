@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pet.name} + ' - 凛喵喵世界'">凛喵喵详情</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🐱 <span th:text="${pet.name}">凛喵喵</span></h1>
+            <div class="player-info">
+                <span>金币：<strong th:text="${player.money}">100</strong></span>
+                <a href="/" class="btn btn-secondary">返回主页</a>
+            </div>
+        </header>
+
+        <main>
+            <div class="pet-detail">
+                <div class="pet-stats-detailed">
+                    <h2>宠物状态</h2>
+                    <div class="stat-bar">
+                        <span>饥饿度</span>
+                        <div class="bar">
+                            <div class="fill hunger" th:style="'width: ' + ${pet.hunger} + '%'"></div>
+                        </div>
+                        <span th:text="${pet.hunger} + '/100'">100/100</span>
+                    </div>
+                    <div class="stat-bar">
+                        <span>口渴度</span>
+                        <div class="bar">
+                            <div class="fill thirst" th:style="'width: ' + ${pet.thirst} + '%'"></div>
+                        </div>
+                        <span th:text="${pet.thirst} + '/100'">100/100</span>
+                    </div>
+                    <div class="stat-bar">
+                        <span>心情</span>
+                        <div class="bar">
+                            <div class="fill mood" th:style="'width: ' + ${pet.mood} + '%'"></div>
+                        </div>
+                        <span th:text="${pet.mood} + '/100'">100/100</span>
+                    </div>
+                    <div class="stat-bar">
+                        <span>健康</span>
+                        <div class="bar">
+                            <div class="fill health" th:style="'width: ' + ${pet.health} + '%'"></div>
+                        </div>
+                        <span th:text="${pet.health} + '/100'">100/100</span>
+                    </div>
+                    <div class="stat-bar">
+                        <span>好感度</span>
+                        <div class="bar">
+                            <div class="fill affection" th:style="'width: ' + ${pet.affection} + '%'"></div>
+                        </div>
+                        <span th:text="${pet.affection} + '/100'">100/100</span>
+                    </div>
+                </div>
+
+                <div class="pet-actions-detailed">
+                    <h2>照顾操作</h2>
+                    
+                    <div class="action-section">
+                        <h3>🍔 喂食</h3>
+                        <div class="items-grid">
+                            <div class="item-card">
+                                <h4>普通汉堡</h4>
+                                <p>恢复30饥饿度，+5心情</p>
+                                <p class="price">💰 10金币</p>
+                                <form method="post" th:action="@{/feed/{id}(id=${pet.id})}">
+                                    <input type="hidden" name="foodIndex" value="0">
+                                    <button type="submit" class="btn btn-primary">喂食</button>
+                                </form>
+                            </div>
+                            <div class="item-card">
+                                <h4>美味炸鸡</h4>
+                                <p>恢复50饥饿度，+10心情</p>
+                                <p class="price">💰 25金币</p>
+                                <form method="post" th:action="@{/feed/{id}(id=${pet.id})}">
+                                    <input type="hidden" name="foodIndex" value="1">
+                                    <button type="submit" class="btn btn-primary">喂食</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="action-section">
+                        <h3>🥤 饮品</h3>
+                        <div class="items-grid">
+                            <div class="item-card">
+                                <h4>干净的水</h4>
+                                <p>恢复30口渴度，+2心情</p>
+                                <p class="price">💰 5金币</p>
+                                <form method="post" th:action="@{/drink/{id}(id=${pet.id})}">
+                                    <input type="hidden" name="drinkIndex" value="0">
+                                    <button type="submit" class="btn btn-info">饮用</button>
+                                </form>
+                            </div>
+                            <div class="item-card">
+                                <h4>肥宅快乐水</h4>
+                                <p>恢复45口渴度，+5心情</p>
+                                <p class="price">💰 15金币</p>
+                                <form method="post" th:action="@{/drink/{id}(id=${pet.id})}">
+                                    <input type="hidden" name="drinkIndex" value="1">
+                                    <button type="submit" class="btn btn-info">饮用</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="action-section">
+                        <h3>🎮 娱乐</h3>
+                        <div class="items-grid">
+                            <div class="item-card">
+                                <h4>玩球</h4>
+                                <p>+30心情，+5好感度</p>
+                                <p class="price">💰 10金币</p>
+                                <form method="post" th:action="@{/play/{id}(id=${pet.id})}">
+                                    <input type="hidden" name="playIndex" value="0">
+                                    <button type="submit" class="btn btn-success">玩耍</button>
+                                </form>
+                            </div>
+                            <div class="item-card">
+                                <h4>看电视</h4>
+                                <p>+25心情，+15好感度</p>
+                                <p class="price">💰 20金币</p>
+                                <form method="post" th:action="@{/play/{id}(id=${pet.id})}">
+                                    <input type="hidden" name="playIndex" value="1">
+                                    <button type="submit" class="btn btn-success">观看</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="action-section">
+                        <h3>💊 医疗</h3>
+                        <div class="items-grid">
+                            <div class="item-card">
+                                <h4>感冒药</h4>
+                                <p>恢复40健康度</p>
+                                <p class="price">💰 30金币</p>
+                                <form method="post" th:action="@{/medicine/{id}(id=${pet.id})}">
+                                    <input type="hidden" name="medicineIndex" value="0">
+                                    <button type="submit" class="btn btn-warning">使用</button>
+                                </form>
+                            </div>
+                            <div class="item-card">
+                                <h4>营养剂</h4>
+                                <p>恢复60健康度</p>
+                                <p class="price">💰 50金币</p>
+                                <form method="post" th:action="@{/medicine/{id}(id=${pet.id})}">
+                                    <input type="hidden" name="medicineIndex" value="1">
+                                    <button type="submit" class="btn btn-warning">使用</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 凛喵喵世界 - 用爱心照顾你的虚拟宠物</p>
+        </footer>
+    </div>
+</body>
+</html>
