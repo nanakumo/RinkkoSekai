@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>重置游戏 - 凛喵喵世界</title>
+    <link rel="stylesheet" th:href="@{/static/style.css}">
+    <style>
+        .warning-box {
+            background: #fff3cd;
+            border: 2px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 30px auto;
+            max-width: 600px;
+            text-align: center;
+        }
+        .warning-icon {
+            font-size: 3em;
+            color: #e17055;
+            margin-bottom: 20px;
+        }
+        .warning-title {
+            color: #d63031;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .warning-text {
+            color: #2d3436;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #d63031, #e17055);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #e17055, #d63031);
+            transform: translateY(-2px);
+        }
+        .btn-safe {
+            background: linear-gradient(135deg, #00b894, #00cec9);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        .btn-safe:hover {
+            background: linear-gradient(135deg, #00cec9, #00b894);
+            transform: translateY(-2px);
+        }
+        .current-stats {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚠️ 重置游戏确认</h1>
+            <div class="player-info">
+                <a href="/" class="btn btn-secondary">返回主页</a>
+            </div>
+        </header>
+
+        <main>
+            <div class="warning-box">
+                <div class="warning-icon">⚠️</div>
+                <div class="warning-title">注意：此操作不可撤销！</div>
+                
+                <div class="current-stats">
+                    <h3>当前游戏状态</h3>
+                    <p>当前金币：<strong th:text="${player.money}">100</strong></p>
+                    <p>拥有的凛喵喵数量：<strong th:text="${player.rinkkoList != null ? player.rinkkoList.size() : 0}">0</strong> 只</p>
+                    <div th:if="${player.rinkkoList != null and !player.rinkkoList.isEmpty()}">
+                        <p>你的凛喵喵们：</p>
+                        <ul>
+                            <li th:each="pet : ${player.rinkkoList}" th:text="${pet.name}">宠物名</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="warning-text">
+                    <p><strong>重置游戏将会：</strong></p>
+                    <p>❌ 删除所有的凛喵喵</p>
+                    <p>❌ 清除所有游戏进度</p>
+                    <p>❌ 重置金币为初始值（100）</p>
+                    <p>❌ 所有数据将永久丢失</p>
+                </div>
+                
+                <div class="warning-text">
+                    <p><strong>重置后你将：</strong></p>
+                    <p>✅ 重新开始全新的游戏</p>
+                    <p>✅ 获得100金币</p>
+                    <p>✅ 可以重新体验游戏</p>
+                </div>
+
+                <div style="margin-top: 30px;">
+                    <p><strong>你确定要重置游戏吗？</strong></p>
+                    
+                    <form method="post" action="/reset-game" style="display: inline;">
+                        <button type="submit" class="btn-danger" onclick="return confirm('最后确认：真的要删除所有数据重新开始吗？')">
+                            🗑️ 确认重置游戏
+                        </button>
+                    </form>
+                    
+                    <a href="/" class="btn-safe">
+                        🛡️ 取消，保留数据
+                    </a>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 凛喵喵世界 - 用爱心照顾你的虚拟宠物</p>
+        </footer>
+    </div>
+</body>
+</html>

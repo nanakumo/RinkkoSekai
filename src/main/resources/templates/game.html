@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>凛喵喵世界 - Rinkko Game</title>
-    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" th:href="@{/static/style.css?v=3.1}">
 </head>
 <body>
     <div class="container">
@@ -16,9 +16,9 @@
             </div>
         </header>
 
-        <main>
+        <main class="main-grid">
             <div class="pets-section">
-                <h2>我的凛喵喵们</h2>
+                <h2 class="pets-title">我的凛喵喵们</h2>
                 <div class="pets-grid" th:if="${player.rinkkoList != null and !player.rinkkoList.isEmpty()}">
                     <div class="pet-card" th:each="pet : ${player.rinkkoList}">
                         <h3 th:text="${pet.name}">宠物名</h3>
@@ -85,6 +85,13 @@
                         <h3>商店</h3>
                         <p>购买食物、饮品和药品</p>
                         <a href="/shop" class="btn btn-info">进入商店</a>
+                    </div>
+                    
+                    <div class="action-card" style="border: 2px solid #e17055;">
+                        <h3 style="color: #d63031;">⚠️ 重置游戏</h3>
+                        <p style="color: #636e72;">从头开始新的游戏</p>
+                        <p style="font-size: 0.9em; color: #74b9ff;">此操作将删除所有数据</p>
+                        <a href="/reset-confirm" class="btn" style="background: linear-gradient(135deg, #e17055, #d63031); color: white;">重置游戏</a>
                     </div>
                 </div>
             </div>

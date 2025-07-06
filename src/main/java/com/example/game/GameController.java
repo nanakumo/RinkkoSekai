@@ -34,7 +34,6 @@ public class GameController {
         this.rinkkoDAO = new RinkkoDAO();
         this.playerDAO = new PlayerDAO();
         this.random = new Random();
-        loadOrCreatePlayer();
         initializeItems();
     }
 
@@ -71,10 +70,16 @@ public class GameController {
 
     @GetMapping("/")
     public String home(Model model) {
-        updatePlayerData();
-        model.addAttribute("player", player);
-        model.addAttribute("currentLevel", currentLevel);
-        return "game";
+        try {
+            loadOrCreatePlayer();
+            model.addAttribute("player", player);
+            model.addAttribute("currentLevel", currentLevel);
+            return "game";
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("error", "加载游戏数据失败: " + e.getMessage());
+            return "error";
+        }
     }
 
     @GetMapping("/pet/{id}")
@@ -170,10 +175,54 @@ public class GameController {
         model.addAttribute("medicines", availableMedicines);
         return "shop";
     }
+    
+    @GetMapping("/reset-confirm")
+    public String resetConfirm(Model model) {
+        model.addAttribute("player", player);
+        return "reset-confirm";
+    }
+    
+    @PostMapping("/reset-game")
+    public String resetGame() {
+        try {
+            // 删除数据库文件并重新初始化
+            DatabaseManager.resetDatabase();
+            
+            // 重新初始化数据库和玩家
+            DatabaseManager.initializeDatabase();
+            loadOrCreatePlayer();
+            
+            return "redirect:/?message=game_reset";
+        } catch (Exception e) {
+            return "redirect:/?error=reset_failed";
+        }
+    }
 
     private void updatePlayerData() {
-        player = playerDAO.findById(1);
-        List<Rinkko> pets = rinkkoDAO.findByPlayerId(player.getId());
-        player.setRinkkoList(new ArrayList<>(pets));
+        try {
+            player = playerDAO.findById(1);
+            if (player == null) {
+                // 如果玩家不存在，创建新玩家
+                player = new Player();
+                player.setId(1);
+                player.setMoney(100);
+                playerDAO.save(player);
+            }
+            List<Rinkko> pets = rinkkoDAO.findByPlayerId(player.getId());
+            if (pets == null) {
+                pets = new ArrayList<>();
+            }
+            player.setRinkkoList(new ArrayList<>(pets));
+        } catch (Exception e) {
+            System.err.println("Error updating player data: " + e.getMessage());
+            e.printStackTrace();
+            // 创建默认玩家作为备用
+            if (player == null) {
+                player = new Player();
+                player.setId(1);
+                player.setMoney(100);
+                player.setRinkkoList(new ArrayList<>());
+            }
+        }
     }
 }

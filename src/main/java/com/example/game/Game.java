@@ -381,7 +381,7 @@ public class Game {
             if (player.getPets().size() < currentLevel) {
                 System.out.println("[A] 领养新凛喵喵");
             }
-            System.out.println("[S] 查看状态 | [Q] 退出游戏");
+            System.out.println("[S] 查看状态 | [R] 重置游戏 | [Q] 退出游戏");
             System.out.println("💡 提示：直接按键即可，无需回车");
 
             char input = readSingleChar();
@@ -426,6 +426,12 @@ public class Game {
                     player.listPets();
                     break;
                 }
+                case 'R': {
+                    if (handleResetGame()) {
+                        return; // 重置后重新启动游戏
+                    }
+                    break;
+                }
                 case 'Q': {
                     saveGame();
                     System.out.println("感谢游玩，期待下次再见！");
@@ -457,6 +463,59 @@ public class Game {
                 }
             }
         }
+    }
+    
+    private boolean handleResetGame() {
+        System.out.println("\n⚠️  重置游戏确认");
+        System.out.println("═══════════════════════════════");
+        System.out.println("当前状态：");
+        System.out.println("💰 金币：" + player.getMoney());
+        System.out.println("🐱 凛喵喵数量：" + player.getPets().size());
+        
+        if (!player.getPets().isEmpty()) {
+            System.out.println("你的凛喵喵们：");
+            for (Rinkko pet : player.getPets()) {
+                System.out.println("  - " + pet.getName());
+            }
+        }
+        
+        System.out.println("\n⚠️  警告：重置游戏将：");
+        System.out.println("❌ 删除所有凛喵喵");
+        System.out.println("❌ 清除所有游戏进度");
+        System.out.println("❌ 重置金币为100");
+        System.out.println("❌ 所有数据将永久丢失！");
+        
+        System.out.println("\n你确定要重置游戏吗？");
+        System.out.println("[Y] 确认重置 | [N] 取消");
+        System.out.println("💡 提示：直接按键即可");
+        
+        char confirm = readSingleChar();
+        
+        if (confirm == 'Y') {
+            System.out.println("\n最后确认：真的要删除所有数据重新开始吗？");
+            System.out.println("[Y] 确认删除 | [N] 取消");
+            
+            char finalConfirm = readSingleChar();
+            
+            if (finalConfirm == 'Y') {
+                try {
+                    System.out.println("\n正在重置游戏...");
+                    DatabaseManager.resetDatabase();
+                    System.out.println("✅ 游戏已重置！");
+                    System.out.println("🎮 重新启动游戏以开始新的冒险！");
+                    return true; // 返回true表示需要重新启动
+                } catch (Exception e) {
+                    System.out.println("❌ 重置失败：" + e.getMessage());
+                    System.out.println("请手动删除 rinkko_game.db 文件后重新启动游戏");
+                }
+            } else {
+                System.out.println("✅ 重置已取消");
+            }
+        } else {
+            System.out.println("✅ 重置已取消");
+        }
+        
+        return false; // 返回false表示继续当前游戏
     }
 
     public static void main(String[] args) {

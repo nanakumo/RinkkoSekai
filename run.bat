@@ -65,9 +65,9 @@ if not exist "target\dependency\jline-reader-3.25.1.jar" (
     )
 )
 
-rem Compile Java sources
+rem Compile Java sources (Console version only - exclude Spring Boot classes)
 echo Compiling Java sources...
-"%JAVA_BIN%\javac.exe" -encoding UTF-8 -cp "target\dependency\sqlite-jdbc-3.45.1.0.jar;target\dependency\slf4j-simple-2.0.9.jar;target\dependency\slf4j-api-2.0.9.jar;target\dependency\jline-terminal-3.25.1.jar;target\dependency\jline-reader-3.25.1.jar" -d target\classes src\com\example\game\*.java src\com\example\game\db\*.java src\com\example\pet\*.java src\com\example\item\*.java
+"%JAVA_BIN%\javac.exe" -encoding UTF-8 -cp "target\dependency\sqlite-jdbc-3.45.1.0.jar;target\dependency\slf4j-simple-2.0.9.jar;target\dependency\slf4j-api-2.0.9.jar;target\dependency\jline-terminal-3.25.1.jar;target\dependency\jline-reader-3.25.1.jar" -d target\classes src\main\java\com\example\game\Game.java src\main\java\com\example\game\Player.java src\main\java\com\example\game\db\*.java src\main\java\com\example\pet\*.java src\main\java\com\example\item\*.java
 
 rem Check compilation success
 if errorlevel 1 (
