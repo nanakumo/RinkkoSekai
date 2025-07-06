@@ -1,4 +1,4 @@
-# 🐱 凛喵喵世界 - Rinkko Game
+# 🐱 喵喵世界 - Rinkko Game
 
 一个可爱的虚拟宠物模拟游戏，现在有Web版本了！
 
@@ -24,22 +24,53 @@
    cd Rinkko
    ```
 
-2. **启动游戏**
-   
+2. **选择游戏版本**
+
+   本游戏提供两种运行方式：
+
+   ### 🌐 Web版（推荐）- 现代浏览器界面
+
    **Windows用户：**
    ```bash
    start-game.bat
    ```
-   
+
    **Linux/Mac用户：**
    ```bash
    chmod +x start-game.sh
    ./start-game.sh
    ```
 
+   启动成功后，浏览器访问：`http://localhost:8080`
+
+   **特点：**
+   - ✅ 现代Web界面，操作简单
+   - ✅ 点击按钮进行游戏
+   - ✅ 可视化宠物状态显示
+   - ✅ 适合分享给朋友
+
+   ### 💻 控制台版 - 经典命令行体验
+
+   **Windows用户：**
+   ```bash
+   run.bat
+   ```
+
+   **Linux/Mac用户：**
+   ```bash
+   chmod +x run.sh
+   ./run.sh
+   ```
+
+   **特点：**
+   - ✅ 经典控制台界面
+   - ✅ 键盘快捷键操作
+   - ✅ 纯文本显示，怀旧感满满
+   - ✅ 自动下载依赖，无需手动配置
+
 3. **开始游戏**
-   - 启动成功后，浏览器访问：`http://localhost:8080`
    - 开始你的凛喵喵养成之旅！
+   - 两个版本的游戏数据是共享的
 
 ## 🎯 游戏说明
 
@@ -81,11 +112,13 @@ Rinkko/
 │       ├── item/          # 物品系统
 │       └── pet/           # 宠物系统
 ├── src/main/resources/
-│   ├── templates/         # HTML模板
-│   └── static/           # CSS样式
-├── lib/                  # Spring Boot依赖
-├── start-game.bat        # Windows启动脚本
-├── start-game.sh         # Linux/Mac启动脚本
+│   ├── templates/         # HTML模板（Web版）
+│   └── static/           # CSS样式（Web版）
+├── lib/                  # Spring Boot依赖（Web版）
+├── start-game.bat        # Web版启动脚本（Windows）
+├── start-game.sh         # Web版启动脚本（Linux/Mac）
+├── run.bat              # 控制台版启动脚本（Windows）
+├── run.sh               # 控制台版启动脚本（Linux/Mac）
 └── README.md            # 说明文档
 ```
 
@@ -107,8 +140,9 @@ A: 游戏数据保存在rinkko_game.db文件中，请不要删除此文件。
 
 ## 🎨 版本历史
 
-- **v1.0** - 控制台版本
-- **v2.0** - Web版本（当前）
+- **v1.0** - 控制台版本（经典命令行体验）
+- **v2.0** - Web版本（现代浏览器界面）
+- **当前** - 双版本支持，数据共享
 
 ## 📄 开源协议
 
